@@ -1,8 +1,7 @@
 """
 streamlit_app.py
 -----------------
-Roman Urdu Customer Feedback Intelligence — a business-facing tool, not
-just a toy classifier.
+Roman Urdu Customer Feedback Intelligence 
 
 Two modes:
   1. Quick Check   - analyze a single sentence instantly.
