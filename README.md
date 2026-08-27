@@ -1,7 +1,7 @@
 # 🇵🇰 Roman Urdu Sentiment Analysis
 
 A sentiment classifier for **Roman Urdu** (Urdu written in Latin script — the way
-most Pakistanis actually text, tweet, and comment online). Most sentiment analysis
+most Pakistanis actually text and comment online). Most sentiment analysis
 portfolios only use English datasets; this project targets a genuinely
 low-resource, under-served language setting.
 
