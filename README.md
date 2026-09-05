@@ -1,115 +1,260 @@
-# 🇵🇰 Roman Urdu Sentiment Analysis
+<h1 align="center">🇵🇰 Roman Urdu Sentiment Analysis</h1>
 
-A sentiment classifier for **Roman Urdu** (Urdu written in Latin script — the way
-most Pakistanis actually text and comment online). Most sentiment analysis
-portfolios only use English datasets; this project targets a genuinely
-low-resource, under-served language setting.
+<p align="center"><strong>Roman Urdu sentiment classification using NLP, TF-IDF, and Logistic Regression.</strong></p>
+<p align="center"><em>Clean → Vectorize → Classify → Evaluate → Analyze Feedback</em></p>
 
-## Why this project
+---
 
-- Roman Urdu has **no fixed spelling standard** ("acha", "achaa", "acha" all mean
-  the same thing) — this alone breaks most off-the-shelf English NLP tooling.
-- Trained on a **real, manually-tagged dataset of 20,000+ sentences** collected
-  from e-commerce reviews, Facebook comments, and tweets (Sharf, Z. — *Roman Urdu
-  Dataset*, hosted on the UCI Machine Learning Repository / GitHub).
-- Demonstrates the full ML pipeline: data cleaning → feature engineering →
-  model training → evaluation → deployment as a web demo.
+## 📌 Overview
 
-## Results
+Roman Urdu is Urdu written in the Latin alphabet and is widely used in online conversations, reviews, and social media. Its spelling is highly variable, which makes standard English-focused NLP pipelines less reliable.
 
-| Metric | Score |
-|---|---|
-| Accuracy | ~64% (3-class: Positive / Negative / Neutral) |
-| Weighted F1 | ~0.64 |
+This project builds an end-to-end sentiment analysis pipeline for Roman Urdu: text preprocessing → TF-IDF feature engineering → balanced Logistic Regression → evaluation → CLI inference → interactive Streamlit feedback analysis.
 
-See `models/confusion_matrix.png` and `models/metrics.json` after training for
-the full breakdown. (Baseline of random-guess on 3 imbalanced classes is ~33-44%,
-so this is a solid signal — plenty of room to push further with word embeddings
-or a transformer like XLM-R / mBERT, noted in Future Work below.)
+The Streamlit application supports both **single-sentence prediction** and **bulk customer-feedback analysis** from CSV files.
 
-## Project structure
+## 🎯 Problem → Solution
 
+**Problem:** Roman Urdu customer comments are difficult to analyze automatically because of inconsistent spelling, informal language, and limited language-specific tooling.
+
+**Solution:** A lightweight, interpretable NLP pipeline with Roman Urdu-specific preprocessing and a labeled Roman Urdu dataset.
+
+---
+
+## ✨ Key Features
+
+- 🇵🇰 Roman Urdu-specific preprocessing
+- 🧹 URL, mention, hashtag, punctuation, and digit removal
+- 🔤 Repeated-character normalization for noisy spellings
+- 🛑 Hand-curated Roman Urdu stopword filtering
+- 📊 TF-IDF using unigrams + bigrams
+- ⚖️ Balanced Logistic Regression
+- 📈 Accuracy, weighted F1, classification report, and confusion matrix
+- 💻 CLI prediction with class probability scores
+- 🌐 Streamlit web application
+- ⚡ Quick single-sentence sentiment check
+- 📁 Bulk CSV feedback analysis
+- 🚨 Negative-feedback prioritization
+- 🔎 Frequent complaint-keyword analysis
+
+---
+
+## 🧠 ML Pipeline
+
+```text
+Roman Urdu Text
+      ↓
+Text Cleaning + Stopword Removal
+      ↓
+TF-IDF (1–2 grams, max 20k features)
+      ↓
+Balanced Logistic Regression
+      ↓
+Sentiment + Probability Scores
 ```
-roman-urdu-sentiment-analysis/
+
+### Preprocessing
+
+`src/preprocess.py` lowercases text, removes URLs/mentions/hashtags/digits/punctuation, normalizes whitespace, reduces repeated characters, and optionally removes Roman Urdu stopwords.
+
+### Model
+
+`src/train.py` uses:
+
+- `TfidfVectorizer(ngram_range=(1, 2), max_features=20000, min_df=2)`
+- `LogisticRegression(max_iter=1000, class_weight="balanced", C=5.0)`
+- stratified 80/20 train-test split
+
+### Inference
+
+`src/predict.py` loads the saved pipeline and returns the predicted sentiment plus probability scores for each class.
+
+---
+
+## 📊 Model Results
+
+Current documented baseline:
+
+| Metric | Result |
+|---|---:|
+| Accuracy | ~64% |
+| Weighted F1 | ~0.64 |
+| Classes | Positive / Negative / Neutral |
+
+Training also generates a full classification report and confusion matrix.
+
+> **Note:** This is a baseline model, not a production-grade accuracy claim. Roman Urdu sentiment remains challenging because of spelling variation, code-switching, sarcasm, context, and limited labeled data.
+
+---
+
+## 🌐 Streamlit Application
+
+The application has two modes:
+
+### ⚡ Quick Check
+
+Enter a Roman Urdu sentence and receive:
+
+- predicted sentiment
+- confidence score
+
+### 📊 Bulk Feedback Analysis
+
+Upload a CSV of Roman Urdu customer comments/reviews and select the text column. The app can generate sentiment results, confidence scores, negative comments to prioritize, and frequent complaint keywords.
+
+This turns the classifier into a small **customer-feedback intelligence workflow** rather than only a model demo.
+
+Run locally with:
+
+```bash
+streamlit run streamlit_app.py
+```
+
+---
+
+## 📁 Project Structure
+
+```text
+-Roman-Urdu-Sentiment-Analysis/
 ├── data/
-│   └── roman_urdu_dataset.csv     # 20k+ labeled Roman Urdu sentences
+│   └── roman_urdu_dataset.csv
+├── models/
+│   ├── sentiment_pipeline.joblib
+│   ├── metrics.json
+│   └── confusion_matrix.png
 ├── src/
-│   ├── preprocess.py               # text cleaning + Roman Urdu stopwords
-│   ├── train.py                    # trains TF-IDF + Logistic Regression
-│   └── predict.py                  # CLI: type a sentence, get sentiment
-├── models/                         # saved model + metrics (generated)
-├── app.py                          # Flask web demo
+│   ├── preprocess.py
+│   ├── train.py
+│   └── predict.py
+├── streamlit_app.py
 ├── requirements.txt
+├── .gitignore
+├── LICENSE
 └── README.md
 ```
 
-## How it works
+---
 
-1. **Preprocessing** (`src/preprocess.py`) — lowercases text, strips URLs/
-   mentions/hashtags/digits/punctuation, collapses repeated letters
-   ("zabardasttttt" → "zabardastt"), and removes a hand-curated list of Roman
-   Urdu stopwords (hai, hain, ka, ki, aur, etc.).
-2. **Feature extraction** — TF-IDF over unigrams + bigrams (up to 20,000
-   features).
-3. **Model** — Logistic Regression with balanced class weights (handles the
-   Neutral-heavy class imbalance in the dataset).
-4. **Evaluation** — accuracy, weighted F1, full classification report, and a
-   confusion matrix plot.
-
-## Setup
+## 🚀 Setup
 
 ```bash
-git clone <your-repo-url>
-cd roman-urdu-sentiment-analysis
+git clone https://github.com/moizaiqbal40-ops/-Roman-Urdu-Sentiment-Analysis.git
+cd -Roman-Urdu-Sentiment-Analysis
 pip install -r requirements.txt
 ```
 
-## Train the model
+Train the model:
 
 ```bash
 python src/train.py
 ```
 
-This creates:
-- `models/sentiment_pipeline.joblib` — the trained pipeline
-- `models/metrics.json` — accuracy / F1 / full classification report
-- `models/confusion_matrix.png` — visual breakdown
+Generated artifacts:
 
-## Try it out
-
-**Command line:**
-```bash
-python src/predict.py --text "yeh cheez bohat zabardast hai"
-# Sentiment: Positive
-
-python src/predict.py --text "bakwas hai yeh to"
-# Sentiment: Negative
+```text
+models/sentiment_pipeline.joblib
+models/metrics.json
+models/confusion_matrix.png
 ```
 
-Or run it interactively:
+### CLI prediction
+
+```bash
+python src/predict.py --text "yeh cheez bohat zabardast hai"
+```
+
+Or use interactive mode:
+
 ```bash
 python src/predict.py
 ```
 
-**Web demo:**
-```bash
-python app.py
-```
-Then open `http://127.0.0.1:5000` and type any Roman Urdu sentence.
+---
 
-## Dataset credit
+## 🗃️ Dataset
 
-Dataset compiled by Zareen Sharf, hosted at
-[Smat26/Roman-Urdu-Dataset](https://github.com/Smat26/Roman-Urdu-Dataset)
-(GPL-3.0), originally on the [UCI ML Repository](https://archive.ics.uci.edu/ml/datasets/Roman+Urdu+Data+Set).
-Full credit to the original author — this project builds a classifier and
-demo layer on top of it.
+The project uses the **Roman Urdu Dataset** attributed to Zareen Sharf. The project documentation describes a manually labeled dataset containing 20,000+ Roman Urdu sentences collected from sources including e-commerce reviews, Facebook comments, and tweets.
 
-## Future work
+Dataset credit:
 
-- Swap TF-IDF for word embeddings (fastText has pretrained Urdu vectors) or
-  fine-tune a multilingual transformer (mBERT / XLM-R) for higher accuracy.
-- Expand the stopword list and add stemming/lemmatization rules specific to
-  Roman Urdu.
-- Add a browser extension that analyzes sentiment on Roman Urdu social media
-  comments in real time.
+- [Roman Urdu Dataset on GitHub](https://github.com/Smat26/Roman-Urdu-Dataset)
+- [UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/datasets/Roman+Urdu+Data+Set)
+
+Please follow the original dataset's licensing and attribution requirements.
+
+---
+
+## 🔬 Engineering Decisions
+
+### Why TF-IDF + Logistic Regression?
+
+A lightweight baseline is useful before moving to transformers. It is fast, inexpensive, interpretable, and easy to debug.
+
+### Why preprocessing?
+
+Roman Urdu has no fixed spelling standard and frequently contains informal or repeated-letter spellings. Normalizing common noise helps create more consistent features.
+
+### Why probability scores?
+
+The model exposes class probabilities so predictions can be inspected rather than treated as unexplained labels.
+
+---
+
+## 📸 Screenshots
+
+<!--
+Add final screenshots when ready.
+
+![Quick Check](screenshots/quick-check.png)
+![Bulk Analysis](screenshots/bulk-analysis.png)
+![Sentiment Results](screenshots/sentiment-results.png)
+![Confusion Matrix](models/confusion_matrix.png)
+-->
+
+---
+
+## ⚠️ Current Limitations
+
+- Baseline accuracy is around 64%.
+- Spelling variation and Roman Urdu + English code-switching remain difficult.
+- TF-IDF has less contextual understanding than transformer models.
+- Sarcasm and implicit sentiment can be difficult to classify.
+- The model may generalize differently across domains.
+
+---
+
+## 🚧 Future Improvements
+
+- Fine-tune multilingual transformers such as **mBERT** or **XLM-R**.
+- Experiment with fastText or other Urdu-aware embeddings.
+- Expand Roman Urdu spelling normalization.
+- Add stemming/lemmatization experiments.
+- Add cross-validation and systematic hyperparameter tuning.
+- Perform class-level error analysis.
+- Improve code-switching handling.
+- Add automated tests and CI.
+- Add persistent analytics and exportable reports.
+
+---
+
+## 🎯 What This Project Demonstrates
+
+- Natural Language Processing
+- supervised machine learning
+- text preprocessing
+- TF-IDF feature engineering
+- Logistic Regression classification
+- imbalanced-class handling
+- model evaluation
+- probability-based inference
+- Python project structure
+- CLI tooling
+- Streamlit application development
+- CSV data workflows
+- practical ML product thinking
+
+---
+
+## 👩‍💻 Portfolio Positioning
+
+A focused NLP project addressing a real low-resource language setting. It demonstrates the complete path from noisy Roman Urdu text to a usable customer-feedback analysis interface, while keeping the underlying ML pipeline lightweight and explainable.
