@@ -1,7 +1,7 @@
 """
 streamlit_app.py
 -----------------
-Roman Urdu Customer Feedback Intelligence 
+Roman Urdu Customer Feedback 
 
 Two modes:
   1. Quick Check   - analyze a single sentence instantly.
