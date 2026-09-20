@@ -5,8 +5,8 @@ Roman Urdu Customer Feedback
 
 Two modes:
   1. Quick Check   - analyze a single sentence instantly.
-  2. Bulk Analysis - upload a CSV of customer reviews/comments (Roman Urdu)
-     and get an automatic feedback report: sentiment breakdown, the most
+  2. Bulk Analysis - upload a CSV of customer reviews (Roman Urdu)
+     and get an automatic feedback report: sentiment breakdown, the 
      urgent negative comments to act on, and the most common complaint
      keywords — the kind of thing a small business or startup could
      actually use to triage customer feedback instead of reading every
