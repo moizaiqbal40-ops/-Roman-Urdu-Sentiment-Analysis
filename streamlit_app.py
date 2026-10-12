@@ -189,7 +189,7 @@ with tab1:
                 )
 
 # ------------------------------------------------------------------ #
-# Tab 2 — bulk analysis (the "real problem solved" part)
+# Tab 2 — bulk analysis 
 # ------------------------------------------------------------------ #
 with tab2:
     st.markdown(
